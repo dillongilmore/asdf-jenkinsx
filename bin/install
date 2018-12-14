@@ -37,7 +37,7 @@ function __jenkinsx_install() {
   local download_path="${tmp_download_dir}/$(__jenkinsx_filename)"
 
   echo "Downloading jx from ${download_url} and extracting"
-  curl -Lo "${download_path}" "${download_url}" | tar xzv
+  curl -L "${download_path}" "${download_url}" | tar xzv
 
   echo "Creating bin directory"
   mkdir -p "${bin_install_path}"
