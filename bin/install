@@ -24,20 +24,20 @@ function __jenkinsx_install() {
   local install_type=$1
   local version=$2
   local install_path=$3
-  local bin_install_path="$install_path/bin"
-  local binary_path="$bin_install_path/jx"
-  local download_url=$(__jenkinsx_url $version)
+  local bin_install_path="${install_path}/bin"
+  local binary_path="${bin_install_path}/jx"
+  local download_url=$(__jenkinsx_url "${version}")
 
   if [ "$TMPDIR" = "" ]; then
-    local tmp_download_dir="$(mktemp -d -t jx_XXXXXX)"
+    local tmp_download_dir="$(mktemp -d -t "jx_${version}")"
   else
-    local tmp_download_dir="$TMPDIR"
+    local tmp_download_dir="${TMPDIR}"
   fi
 
   local download_path="${tmp_download_dir}/$(__jenkinsx_filename)"
 
   echo "Downloading jx from ${download_url} and extracting"
-  curl -L "${download_path}" "${download_url}" | tar xzv
+  curl -L "${download_url}" | tar xzv -C "${tmp_download_dir}"
 
   echo "Creating bin directory"
   mkdir -p "${bin_install_path}"
@@ -46,7 +46,7 @@ function __jenkinsx_install() {
   rm -f $binary_path 2>/dev/null || true
 
   echo "Copying binary"
-  cp $download_path $binary_path
+  cp "${tmp_download_dir}/jx" "${binary_path}"
   chmod +x $binary_path
 }
 
