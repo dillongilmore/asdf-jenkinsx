@@ -29,7 +29,7 @@ function __jenkinsx_install() {
   local download_url=$(__jenkinsx_url "${version}")
 
   if [ "$TMPDIR" = "" ]; then
-    local tmp_download_dir="$(mktemp -d -t "jx_${version}")"
+    local tmp_download_dir="$(mktemp -d -t jx_XXXXXX)"
   else
     local tmp_download_dir="${TMPDIR}"
   fi
