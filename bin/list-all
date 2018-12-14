@@ -10,8 +10,7 @@ set -o pipefail
 function __jenkinsx_sort_versions() {
   sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' |
     LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n          |
-    awk '{print $2}' | tr "\n" " "
-  echo
+    awk '{print $2}'
 }
 
 function __jenkinsx_tag_name() {
@@ -21,11 +20,21 @@ function __jenkinsx_tag_name() {
 
 function __jenkinsx_http_versions() {
   local releases_path="https://api.github.com/repos/jenkins-x/jx/releases"
-  local cmd="curl -s"
+  local cmd="curl"
+  local options="-s"
+  local auth=""
+
   if [ -n "$OAUTH_TOKEN" ]; then
-    cmd="$cmd -H 'Authorization: token $OAUTH_TOKEN'"
+    auth=" -H 'Authorization: token ${OAUTH_TOKEN}' "
   fi
-  $cmd $releases_path
+
+  $cmd $options$auth$releases_path
 }
 
-__jenkinsx_http_versions | __jenkinsx_tag_name | __jenkinsx_sort_versions
+function __jenkinsx_main() {
+  __jenkinsx_http_versions | __jenkinsx_tag_name | __jenkinsx_sort_versions
+}
+
+versions=$(__jenkinsx_main)
+echo $versions
+
