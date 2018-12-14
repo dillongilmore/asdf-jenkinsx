@@ -30,11 +30,20 @@ function __jenkinsx_http_versions() {
     auth=" -H 'Authorization: token ${OAUTH_TOKEN}' "
   fi
 
+  if [ -n "$DEBUG" ]; then
+    printf "$cmd $options$auth$releases_path\n" 1>&2
+    $cmd $options$auth$releases_path 1>&2
+  fi
+
   $cmd $options$auth$releases_path
 }
 
 # wrap everything up into a main function
 function __jenkinsx_main() {
+  if [ -n "$DEBUG" ]; then
+    __jenkinsx_http_versions | __jenkinsx_tag_name | __jenkinsx_sort_versions 1>&2
+  fi
+
   __jenkinsx_http_versions | __jenkinsx_tag_name | __jenkinsx_sort_versions
 }
 
