@@ -22,20 +22,30 @@ function __jenkinsx_tag_name() {
 # stolen from asdf-minikube and refactored
 function __jenkinsx_http_versions() {
   local releases_path="https://api.github.com/repos/jenkins-x/jx/releases"
-  local cmd="curl"
+  local bin="curl"
   local options="-s"
-  local auth=""
+  local cmd=""
 
   if [ -n "$OAUTH_TOKEN" ]; then
-    auth=" -H 'Authorization: token ${OAUTH_TOKEN}' "
+    cmd="$bin $options -H 'Authorization: token ${OAUTH_TOKEN}' $releases_path"
+  else
+    cmd="$cmd $options $releases_path"
   fi
 
+  # IMPROVE: Using eval because bash. Try to remove eval.
+  local results="$(eval "$cmd")"
   if [ -n "$DEBUG" ]; then
-    printf "$cmd $options$auth$releases_path\n" 1>&2
-    $cmd $options$auth$releases_path 1>&2
+    printf "\n$cmd\n" 1>&2
+
+    local linecount="$(wc -l <<< "$results")"
+    if [ $linecount -gt 100 ]; then
+      printf "\nResponse is '$linecount' lines long.\n" 1>&2
+    else
+      printf "\n$results\n" 1>&2
+    fi
   fi
 
-  $cmd $options$auth$releases_path
+  printf "$results"
 }
 
 # wrap everything up into a main function
