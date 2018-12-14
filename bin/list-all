@@ -10,14 +10,16 @@ set -o pipefail
 function __jenkinsx_sort_versions() {
   sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' |
     LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n          |
-    awk '{print $2}'
+    awk '{print $2}' | tr "\n" " "
 }
 
+# stolen from asdf-minikube
 function __jenkinsx_tag_name() {
   grep -oE "tag_name\":\s?\".{1,15}\"," |
     sed -E 's/tag_name\":\s?\"v([0-9\.]+)\",/\1/'
 }
 
+# stolen from asdf-minikube and refactored
 function __jenkinsx_http_versions() {
   local releases_path="https://api.github.com/repos/jenkins-x/jx/releases"
   local cmd="curl"
@@ -31,10 +33,12 @@ function __jenkinsx_http_versions() {
   $cmd $options$auth$releases_path
 }
 
+# wrap everything up into a main function
 function __jenkinsx_main() {
   __jenkinsx_http_versions | __jenkinsx_tag_name | __jenkinsx_sort_versions
 }
 
-versions=$(__jenkinsx_main)
-echo $versions
+# Above functions don't have a newline so just wrap this in an echo to have
+# clean output.
+echo "$(__jenkinsx_main)"
 
